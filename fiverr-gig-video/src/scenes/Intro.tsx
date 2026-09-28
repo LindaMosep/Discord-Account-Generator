@@ -1,86 +1,69 @@
 import React from 'react';
 import {AbsoluteFill, interpolate, useCurrentFrame} from 'remotion';
-import {ease, pop, progress, rise} from '../anim';
-import {C, COPY, WARM} from '../config';
-import {BODY} from '../fonts';
-import {GradientText, Heading, RolePill} from '../components/Ui';
+import {ease, progress} from '../anim';
+import {C, COPY} from '../config';
+import {MONO, SERIF} from '../fonts';
+import {Heading, Label, MaskLine, Scramble, WordRotator} from '../components/Ui';
 
-const Words: React.FC<{text: string; start: number; frame: number; accent?: boolean}> = ({text, start, frame, accent}) => (
-  <>
-    {text.split(' ').map((w, i) => {
-      const v = ease(frame, start + i * 4, 22);
-      return (
-        <span key={i} style={{display: 'inline-block', marginRight: '0.24em', ...rise(v, 60)}}>
-          {accent ? <GradientText>{w}</GradientText> : w}
-        </span>
-      );
-    })}
-  </>
+// Eight-point asterisk used as a spinning accent mark.
+const Asterisk: React.FC<{size: number; rotate: number; scale: number}> = ({size, rotate, scale}) => (
+  <svg width={size} height={size} viewBox="-50 -50 100 100" style={{transform: `rotate(${rotate}deg) scale(${scale})`}}>
+    {Array.from({length: 4}).map((_, i) => (
+      <rect key={i} x={-7} y={-48} width={14} height={96} rx={7} fill={C.accent} transform={`rotate(${i * 45})`} />
+    ))}
+  </svg>
 );
 
 export const Intro: React.FC = () => {
   const frame = useCurrentFrame();
-  const pill = ease(frame, 2, 20);
-  const underline = progress(frame, 34, 56);
-  const chips = ['iOS', 'Android', 'Cross-platform'];
-  // gentle push-in for the whole scene
-  const zoom = interpolate(frame, [0, 90], [1.04, 1]);
+  const zoom = interpolate(frame, [0, 100], [1.035, 1]);
+  const line = progress(frame, 40, 70);
+  const star = ease(frame, 30, 30);
+  const foot = ease(frame, 50, 20);
 
   return (
-    <AbsoluteFill style={{alignItems: 'center', justifyContent: 'center', transform: `scale(${zoom})`}}>
-      <div style={{display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 44}}>
-        <div style={rise(pill, -30)}>
-          <RolePill label={COPY.role} />
+    <AbsoluteFill style={{transform: `scale(${zoom})`, padding: '140px 140px 0'}}>
+      <Label>
+        <Scramble text={`${COPY.role} / ${COPY.years}+ yrs`} frame={frame} delay={2} duration={26} />
+      </Label>
+
+      <Heading size={196} style={{marginTop: 50}}>
+        <MaskLine frame={frame} delay={6}>
+          {COPY.introLines[0]}
+        </MaskLine>
+        <MaskLine frame={frame} delay={12}>
+          {COPY.introLines[1]}
+        </MaskLine>
+        <MaskLine frame={frame} delay={18}>
+          <span>that </span>
+          <span style={{fontFamily: SERIF, fontStyle: 'italic', fontWeight: 400, color: C.accent, fontSize: '1.12em', letterSpacing: 0}}>
+            <WordRotator words={COPY.introRotator} frame={frame} start={30} every={16} />
+          </span>
+        </MaskLine>
+      </Heading>
+
+      <div style={{position: 'absolute', right: 170, top: 330}}>
+        <Asterisk size={250} rotate={frame * 2.2 - (1 - star) * 90} scale={star} />
+      </div>
+
+      <div style={{position: 'absolute', left: 140, right: 140, bottom: 110}}>
+        <div style={{height: 2, background: C.line}}>
+          <div style={{height: '100%', width: `${line * 100}%`, background: C.ink}} />
         </div>
-        <Heading size={120} style={{textAlign: 'center'}}>
-          <div>
-            <Words text={COPY.headlineTop} start={8} frame={frame} />
-          </div>
-          <div style={{position: 'relative', display: 'inline-block'}}>
-            <Words text={COPY.headlineAccent} start={22} frame={frame} accent />
-            <svg
-              width="100%"
-              height="30"
-              viewBox="0 0 800 30"
-              preserveAspectRatio="none"
-              style={{position: 'absolute', left: 0, bottom: -26}}
-            >
-              <path
-                d="M8 20 C 200 4, 520 4, 792 16"
-                stroke={C.amber}
-                strokeWidth={8}
-                fill="none"
-                strokeLinecap="round"
-                pathLength={1}
-                strokeDasharray={1}
-                strokeDashoffset={1 - underline}
-              />
-            </svg>
-          </div>
-        </Heading>
-        <div style={{display: 'flex', gap: 18, marginTop: 10}}>
-          {chips.map((c, i) => {
-            const v = pop(frame, 44 + i * 5);
-            return (
-              <div
-                key={c}
-                style={{
-                  opacity: Math.min(v, 1),
-                  transform: `scale(${0.6 + v * 0.4})`,
-                  padding: '14px 30px',
-                  borderRadius: 999,
-                  fontFamily: BODY,
-                  fontWeight: 600,
-                  fontSize: 28,
-                  color: i === 0 ? '#1A0E00' : C.ink,
-                  background: i === 0 ? WARM : C.glass,
-                  border: i === 0 ? 'none' : `1.5px solid ${C.line}`,
-                }}
-              >
-                {c}
-              </div>
-            );
-          })}
+        <div
+          style={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            marginTop: 24,
+            fontFamily: MONO,
+            fontSize: 28,
+            color: C.muted,
+            opacity: foot,
+            transform: `translateY(${(1 - foot) * 20}px)`,
+          }}
+        >
+          <span>iOS · Android · Cross-platform</span>
+          <span style={{color: C.ink}}>Available for new projects</span>
         </div>
       </div>
     </AbsoluteFill>

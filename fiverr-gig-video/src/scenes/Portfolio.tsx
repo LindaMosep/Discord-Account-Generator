@@ -1,100 +1,102 @@
 import React from 'react';
 import {AbsoluteFill, interpolate, useCurrentFrame} from 'remotion';
-import {ease, pop, progress, rise} from '../anim';
+import {ease, progress} from '../anim';
 import {C} from '../config';
-import {BODY} from '../fonts';
-import {Phone} from '../components/Phone';
-import {GradientText, Heading} from '../components/Ui';
+import {DISPLAY, MONO} from '../fonts';
+import {Phone, PHONE_H, PHONE_W} from '../components/Phone';
+import {Accent, Heading, Label, MaskLine, Scramble, SplitChars} from '../components/Ui';
 import {FinanceApp} from '../screens/FinanceApp';
 import {FitnessApp} from '../screens/FitnessApp';
 import {FoodApp} from '../screens/FoodApp';
 
-type Slot = {
-  key: string;
-  label: string;
-  color: string;
-  delay: number;
-  x: number;
-  y: number;
-  rot: number;
-  width: number;
-  z: number;
-  bg: string;
-  darkStatus: boolean;
-  screen: (p: number) => React.ReactNode;
-};
-
-const SLOTS: Slot[] = [
-  {key: 'fit', label: 'Health & Fitness', color: '#22C55E', delay: 14, x: -470, y: 60, rot: -8, width: 290, z: 1, bg: '#F3F5FB', darkStatus: true, screen: (p) => <FitnessApp p={p} />},
-  {key: 'food', label: 'Food Delivery', color: C.orange, delay: 20, x: 470, y: 60, rot: 8, width: 290, z: 1, bg: '#FFFFFF', darkStatus: true, screen: (p) => <FoodApp p={p} />},
-  {key: 'fin', label: 'Fintech Wallet', color: C.violet, delay: 6, x: 0, y: 20, rot: 0, width: 330, z: 2, bg: '#0B0F2A', darkStatus: false, screen: (p) => <FinanceApp p={p} />},
+const APPS = [
+  {name: 'Fintech wallet', bg: '#111110', screen: (p: number) => <FinanceApp p={p} />},
+  {name: 'Fitness tracker', bg: '#0F0F0E', screen: (p: number) => <FitnessApp p={p} />},
+  {name: 'Food delivery', bg: '#121210', screen: (p: number) => <FoodApp p={p} />},
 ];
+
+const PW = 300;
+const PH = (PW * PHONE_H) / PHONE_W;
+const START = 16;
+const STEP = 12;
+// Which project the list highlights; it walks through all three while the phones play.
+const activeAt = (frame: number) => Math.min(2, Math.max(0, Math.floor((frame - 40) / 30)));
 
 export const Portfolio: React.FC = () => {
   const frame = useCurrentFrame();
-  const title = ease(frame, 0, 22);
-  const push = interpolate(frame, [0, 150], [1, 1.05]);
+  const active = activeAt(frame);
+  const drift = interpolate(frame, [0, 150], [30, -30]);
 
   return (
     <AbsoluteFill>
-      <div style={{position: 'absolute', top: 70, width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 14, ...rise(title, -30)}}>
-        <div style={{fontFamily: BODY, fontWeight: 600, fontSize: 24, letterSpacing: 8, color: C.amber}}>PORTFOLIO SHOWCASE</div>
-        <Heading size={68} style={{textAlign: 'center'}}>
-          Apps designed to <GradientText>delight users</GradientText>
+      <div style={{position: 'absolute', left: 140, top: 150, width: 640}}>
+        <Label>
+          <Scramble text="Portfolio" frame={frame} delay={2} duration={16} />
+        </Label>
+        <Heading size={156} style={{marginTop: 30}}>
+          <MaskLine frame={frame} delay={4}>
+            Selected
+          </MaskLine>
+          <MaskLine frame={frame} delay={10}>
+            <Accent style={{fontSize: '1.14em'}}>work</Accent>
+          </MaskLine>
         </Heading>
+
+        <div style={{marginTop: 70}}>
+          {APPS.map((a, i) => {
+            const v = ease(frame, 24 + i * 6, 20);
+            const on = i === active;
+            const bar = ease(frame, 40 + i * 30, 12);
+            return (
+              <div key={a.name} style={{position: 'relative', padding: '20px 0', opacity: v}}>
+                <div style={{position: 'absolute', left: 0, right: 0, top: 0, height: 2, background: C.line}}>
+                  <div style={{height: '100%', width: `${v * 100}%`, background: C.dim}} />
+                </div>
+                <div style={{display: 'flex', alignItems: 'baseline', gap: 26, transform: `translateX(${on ? 18 * bar : 0}px)`}}>
+                  <span style={{fontFamily: MONO, fontSize: 28, color: on ? C.accent : C.dim}}>0{i + 1}</span>
+                  <SplitChars
+                    text={a.name}
+                    frame={frame}
+                    delay={26 + i * 6}
+                    stagger={1}
+                    style={{fontFamily: DISPLAY, fontWeight: 700, fontSize: 54, letterSpacing: -1.5, color: on ? C.ink : C.muted}}
+                  />
+                </div>
+              </div>
+            );
+          })}
+        </div>
       </div>
 
-      <AbsoluteFill style={{transform: `scale(${push})`, transformOrigin: '50% 70%'}}>
-        {SLOTS.map((s) => {
-          const v = ease(frame, s.delay, 30);
-          const p = progress(frame, s.delay + 8, s.delay + 80);
-          const bob = Math.sin((frame + s.delay * 3) / 22) * 8;
-          const h = (s.width * 760) / 360;
-          const tag = pop(frame, s.delay + 30);
+      <div style={{position: 'absolute', left: 820, top: 0, right: 0, bottom: 0, perspective: 1600}}>
+        {APPS.map((a, i) => {
+          const d = START + i * STEP;
+          const v = ease(frame, d, 34);
+          const p = progress(frame, d + 10, d + 80);
+          const bob = Math.sin((frame + i * 20) / 20) * 10;
+          const on = i === active;
+          const lift = ease(frame, 40 + i * 30, 14) - (i < 2 ? ease(frame, 40 + (i + 1) * 30, 14) : 0);
+          const bright = 1 - 0.12 * ease(frame, 34, 14) + 0.12 * lift;
           return (
             <div
-              key={s.key}
+              key={a.name}
               style={{
                 position: 'absolute',
-                left: 960 + s.x - s.width / 2,
-                top: 250 + s.y,
-                zIndex: s.z,
-                opacity: Math.min(1, v * 1.4),
-                transform: `translateY(${(1 - v) * 500 + bob}px) rotate(${s.rot * v}deg)`,
+                left: 20 + i * 330 + drift * (i - 1) * 0.5,
+                top: 540 - PH / 2 + (i === 1 ? -30 : 30),
+                opacity: Math.min(1, v * 1.5),
+                transform: `translateY(${(1 - v) * 420 + bob - lift * 30}px) rotateY(${(1 - v) * -70}deg) rotateZ(${(1 - v) * 10}deg) scale(${1 + lift * 0.04})`,
+                transformOrigin: 'center bottom',
+                filter: bright < 1 ? `brightness(${bright})` : undefined,
               }}
             >
-              <Phone width={s.width} screenBg={s.bg} darkStatus={s.darkStatus} glow={s.z === 2 ? 'rgba(124,92,255,0.45)' : undefined}>
-                {s.screen(p)}
+              <Phone width={PW} screenBg={a.bg} glow={on ? C.accent : undefined}>
+                {a.screen(p)}
               </Phone>
-              <div
-                style={{
-                  position: 'absolute',
-                  top: h - 22,
-                  left: '50%',
-                  transform: `translateX(-50%) scale(${tag})`,
-                  opacity: Math.min(tag, 1),
-                  whiteSpace: 'nowrap',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: 10,
-                  padding: '12px 22px',
-                  borderRadius: 999,
-                  background: 'rgba(12,16,44,0.85)',
-                  border: `1.5px solid ${C.line}`,
-                  fontFamily: BODY,
-                  fontWeight: 600,
-                  fontSize: 24,
-                  color: C.ink,
-                  boxShadow: '0 12px 30px rgba(0,0,0,0.4)',
-                }}
-              >
-                <span style={{width: 12, height: 12, borderRadius: 6, background: s.color}} />
-                {s.label}
-              </div>
             </div>
           );
         })}
-      </AbsoluteFill>
+      </div>
     </AbsoluteFill>
   );
 };

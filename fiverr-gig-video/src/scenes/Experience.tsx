@@ -1,95 +1,81 @@
 import React from 'react';
 import {AbsoluteFill, interpolate, useCurrentFrame} from 'remotion';
-import {ease, pop, progress, rise} from '../anim';
-import {C, COPY, GRADIENT, WARM} from '../config';
-import {BODY, DISPLAY} from '../fonts';
-import {Check, Code, Layers, Phone} from '../components/Icons';
-import {GradientText, Heading} from '../components/Ui';
+import {ease, pop} from '../anim';
+import {C, COPY} from '../config';
+import {DISPLAY} from '../fonts';
+import {Heading, Highlight, Label, MaskLine, RollingDigit, Scramble} from '../components/Ui';
 
-const R = 230;
-const CIRC = 2 * Math.PI * R;
+const Marquee: React.FC<{frame: number; items: string[]}> = ({frame, items}) => {
+  const enter = ease(frame, 20, 26);
+  const x = -frame * 7 + (1 - enter) * 600;
+  const row = [...items, ...items, ...items];
+  return (
+    <div style={{position: 'absolute', left: 0, right: 0, bottom: 90, overflow: 'hidden', opacity: enter}}>
+      <div style={{display: 'flex', alignItems: 'center', gap: 48, whiteSpace: 'nowrap', transform: `translateX(${x}px)`}}>
+        {row.map((t, i) => (
+          <React.Fragment key={i}>
+            <span
+              style={{
+                fontFamily: DISPLAY,
+                fontWeight: 800,
+                fontSize: 130,
+                letterSpacing: -4,
+                lineHeight: 1,
+                color: i % 2 === 0 ? C.dim : C.ink,
+              }}
+            >
+              {t}
+            </span>
+            <span style={{width: 26, height: 26, borderRadius: 13, background: C.accent, flexShrink: 0}} />
+          </React.Fragment>
+        ))}
+      </div>
+    </div>
+  );
+};
 
 export const Experience: React.FC = () => {
   const frame = useCurrentFrame();
-  const ring = progress(frame, 4, 50);
-  const count = Math.round(interpolate(ring, [0, 1], [0, COPY.years]));
-  const plus = pop(frame, 46);
-  const block = ease(frame, 6, 26);
-  const icons = [Phone, Layers, Code];
+  const plus = pop(frame, 36, 26);
+  const yrs = ease(frame, 30, 20);
+  const shift = interpolate(frame, [0, 110], [0, -30]);
 
   return (
-    <AbsoluteFill style={{alignItems: 'center', justifyContent: 'center'}}>
-      <div style={{display: 'flex', alignItems: 'center', gap: 90}}>
-        <div style={{position: 'relative', width: 540, height: 540, ...rise(block, 0), transform: `scale(${0.85 + block * 0.15})`}}>
-          <svg width="540" height="540" viewBox="0 0 540 540" style={{position: 'absolute', inset: 0}}>
-            <defs>
-              <linearGradient id="warm" x1="0" y1="0" x2="1" y2="1">
-                <stop offset="0%" stopColor={C.amber} />
-                <stop offset="100%" stopColor={C.orange} />
-              </linearGradient>
-            </defs>
-            <circle cx="270" cy="270" r={R} fill="rgba(255,255,255,0.03)" stroke="rgba(255,255,255,0.08)" strokeWidth={22} />
-            <circle
-              cx="270"
-              cy="270"
-              r={R}
-              fill="none"
-              stroke="url(#warm)"
-              strokeWidth={22}
-              strokeLinecap="round"
-              strokeDasharray={CIRC}
-              strokeDashoffset={CIRC * (1 - ring)}
-              transform="rotate(-90 270 270)"
-              style={{filter: 'drop-shadow(0 0 18px rgba(255,140,60,0.6))'}}
-            />
-          </svg>
-          <div style={{position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center'}}>
-            <div style={{fontFamily: DISPLAY, fontWeight: 800, fontSize: 250, lineHeight: 0.9, letterSpacing: -8, display: 'flex'}}>
-              <GradientText gradient={WARM}>{count}</GradientText>
-              <span style={{display: 'inline-block', transform: `scale(${plus})`, opacity: Math.min(plus, 1)}}>
-                <GradientText gradient={WARM}>+</GradientText>
-              </span>
-            </div>
-            <div style={{fontFamily: BODY, fontWeight: 600, fontSize: 30, letterSpacing: 8, color: C.muted, marginTop: 10}}>YEARS</div>
-          </div>
+    <AbsoluteFill>
+      <div style={{position: 'absolute', left: 120, top: 70, transform: `translateX(${shift}px)`}}>
+        <div style={{fontFamily: DISPLAY, fontWeight: 800, fontSize: 600, lineHeight: 1, letterSpacing: -30, color: C.ink, display: 'flex'}}>
+          {String(COPY.years)
+            .split('')
+            .map((d, i) => (
+              <RollingDigit key={i} digit={Number(d)} frame={frame} delay={2 + i * 4} duration={40} spins={2} />
+            ))}
+          <span style={{color: C.accent, display: 'inline-block', transform: `scale(${plus}) rotate(${(1 - plus) * -90}deg)`, opacity: Math.min(plus, 1)}}>+</span>
         </div>
-
-        <div style={{display: 'flex', flexDirection: 'column', gap: 36, width: 900}}>
-          <Heading size={82} style={rise(ease(frame, 14, 24), 40)}>
-            Years of building
-            <br />
-            <GradientText>mobile apps</GradientText> that ship.
-          </Heading>
-          <div style={{display: 'flex', flexDirection: 'column', gap: 18}}>
-            {COPY.pillars.map((p, i) => {
-              const v = ease(frame, 30 + i * 7, 22);
-              const Icon = icons[i];
-              return (
-                <div
-                  key={p}
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: 22,
-                    padding: '18px 26px',
-                    borderRadius: 24,
-                    background: C.glass,
-                    border: `1.5px solid ${C.line}`,
-                    opacity: v,
-                    transform: `translateX(${(1 - v) * 80}px)`,
-                  }}
-                >
-                  <div style={{width: 54, height: 54, borderRadius: 16, background: GRADIENT, display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
-                    <Icon size={28} color="#fff" stroke={2.2} />
-                  </div>
-                  <div style={{flex: 1, fontFamily: BODY, fontWeight: 600, fontSize: 36, color: C.ink}}>{p}</div>
-                  <Check size={34} color={C.green} stroke={3} />
-                </div>
-              );
-            })}
-          </div>
+        <div style={{fontFamily: DISPLAY, fontWeight: 700, fontSize: 64, letterSpacing: 18, color: C.muted, marginTop: -70, marginLeft: 24, opacity: yrs, transform: `translateY(${(1 - yrs) * 20}px)`}}>
+          YEARS
         </div>
       </div>
+
+      <div style={{position: 'absolute', left: 920, top: 150, width: 880}}>
+        <Label>
+          <Scramble text="Experience" frame={frame} delay={8} duration={18} />
+        </Label>
+        <Heading size={112} style={{marginTop: 36}}>
+          <MaskLine frame={frame} delay={12}>
+            of building
+          </MaskLine>
+          <MaskLine frame={frame} delay={18}>
+            mobile apps for
+          </MaskLine>
+          <MaskLine frame={frame} delay={24} style={{paddingTop: 10}}>
+            <Highlight frame={frame} delay={44} duration={18}>
+              iOS & Android
+            </Highlight>
+          </MaskLine>
+        </Heading>
+      </div>
+
+      <Marquee frame={frame} items={COPY.stack} />
     </AbsoluteFill>
   );
 };

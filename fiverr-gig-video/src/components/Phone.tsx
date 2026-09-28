@@ -26,11 +26,11 @@ export const Phone: React.FC<{
           transform: `scale(${scale})`,
           transformOrigin: 'top left',
           borderRadius: 58,
-          background: 'linear-gradient(145deg, #3A3F55 0%, #12141F 45%, #2A2E40 100%)',
+          background: 'linear-gradient(145deg, #3A3935 0%, #141412 45%, #2C2B28 100%)',
           padding: 12,
           boxSizing: 'border-box',
-          boxShadow: `0 40px 80px rgba(0,0,0,0.55), 0 0 0 1.5px rgba(255,255,255,0.12) inset${
-            glow ? `, 0 0 120px ${glow}` : ''
+          boxShadow: `0 50px 90px rgba(0,0,0,0.7), 0 0 0 1.5px rgba(255,255,255,0.10) inset${
+            glow ? `, 0 0 0 1px ${glow}` : ''
           }`,
         }}
       >
@@ -118,7 +118,7 @@ export const Phone: React.FC<{
             style={{
               position: 'absolute',
               inset: 0,
-              background: 'linear-gradient(115deg, rgba(255,255,255,0.10) 0%, rgba(255,255,255,0) 35%)',
+              background: 'linear-gradient(115deg, rgba(255,255,255,0.06) 0%, rgba(255,255,255,0) 35%)',
               pointerEvents: 'none',
               zIndex: 7,
             }}

@@ -3,38 +3,33 @@
 export const COPY = {
   role: 'Mobile App Developer',
   years: 8,
-  headlineTop: 'Turn your idea into a',
-  headlineAccent: 'stunning mobile app',
-  coverTitle: ['I will build your', 'iOS & Android app'],
-  pillars: ['iOS & Android', 'Pixel-perfect UI', 'Clean, scalable code'],
+  // Intro: "I build / mobile apps / that <word>" — the last word cycles and lands on the final one.
+  introLines: ['I build', 'mobile apps'],
+  introRotator: ['scale.', 'convert.', 'ship.'],
+  coverTitle: ['iOS & Android', 'App Developer'],
   services: [
-    'Native iOS & Android apps',
+    'Native iOS & Android',
     'Flutter & React Native',
-    'Modern UI/UX design',
-    'API, Firebase & backend integration',
-    'App Store & Play Store launch',
+    'UI/UX design',
+    'API & backend integration',
+    'App Store & Play launch',
   ],
-  stack: ['Swift', 'Kotlin', 'Flutter', 'React Native', 'Firebase'],
-  cta: 'Let’s build your app',
+  stack: ['Swift', 'Kotlin', 'Flutter', 'React Native', 'Firebase', 'SwiftUI', 'Jetpack Compose'],
 };
 
+// Warm near-black, off-white ink, one chartreuse accent. A hot orange appears only in small doses.
 export const C = {
-  bg: '#070B24',
-  bg2: '#0E1440',
-  ink: '#FFFFFF',
-  muted: '#A9B1D6',
-  violet: '#7C5CFF',
-  blue: '#3B82F6',
-  cyan: '#22D3EE',
-  amber: '#FFB547',
-  orange: '#FF6A3D',
-  green: '#22C55E',
-  line: 'rgba(255,255,255,0.10)',
-  glass: 'rgba(255,255,255,0.06)',
+  bg: '#0C0C0B',
+  surface: '#161614',
+  surface2: '#1F1F1C',
+  ink: '#F3F0E8',
+  muted: '#8C887E',
+  dim: '#55524B',
+  line: 'rgba(243,240,232,0.10)',
+  accent: '#D4FF3F',
+  accentInk: '#0C0C0B',
+  hot: '#FF5A1F',
 };
-
-export const GRADIENT = `linear-gradient(100deg, ${C.violet} 0%, ${C.blue} 50%, ${C.cyan} 100%)`;
-export const WARM = `linear-gradient(100deg, ${C.amber} 0%, ${C.orange} 100%)`;
 
 export const FPS = 30;
 export const WIDTH = 1920;
